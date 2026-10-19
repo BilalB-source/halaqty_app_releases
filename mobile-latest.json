@@ -1,9 +1,11 @@
 {
-  "kind": "silent",
-  "version": "1.2.2",
-  "baseVersion": "1.2",
-  "baseVersionCode": 3,
-  "patchNumber": 2,
-  "notes": "Faster saves, attendance button, student search",
-  "publishedAt": "2026-10-06T05:45:56.204858Z"
+  "version": "1.3",
+  "versionCode": 4,
+  "minSupported": 0,
+  "mandatory": true,
+  "apkUrl": "https://github.com/BilalB-source/halaqty_app_releases/releases/download/v1.3/halqty-1.3.apk",
+  "notes": "متابعة التسميع، إشعارات التسميع، مصحف جديد، واجهة تسجيل جديدة",
+  "sha256": "3e9abeb90bc869a1eaecc2d479e588df9cfd888d24b34d7e9cc5464964a0ba99",
+  "sizeBytes": 37035866,
+  "publishedAt": "2026-10-19T20:20:38.885582Z"
 }

@@ -1,0 +1,9 @@
+{
+  "kind": "silent",
+  "version": "1.2.2",
+  "baseVersion": "1.2",
+  "baseVersionCode": 3,
+  "patchNumber": 2,
+  "notes": "Faster saves, attendance button, student search",
+  "publishedAt": "2026-10-06T05:45:56.204858Z"
+}

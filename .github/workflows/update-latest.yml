@@ -45,26 +45,36 @@ jobs:
           echo "Using tag: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Build mobile-latest.json
+      - name: Get and validate release JSON
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.pick.outputs.tag }}
         run: |
-          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" \
-            --json tagName,body,publishedAt,assets \
-          | jq '{
-              version: (.tagName | ltrimstr("v")),
-              apk_url: ([.assets[] | select(.name | endswith(".apk")) | .url][0]),
-              notes: .body,
-              published_at: .publishedAt
-            }' > mobile-latest.json
-          cat mobile-latest.json
-          if [ "$(jq -r .apk_url mobile-latest.json)" = "null" ]; then
-            echo "::error::No .apk file found in release $TAG"
+          ASSETS=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets -q '.assets[].name')
+          echo "Assets in $TAG:"
+          echo "$ASSETS"
+          JSON_ASSET=$(echo "$ASSETS" | grep -i '\.json$' | head -n 1 || true)
+          if [ -z "$JSON_ASSET" ]; then
+            echo "::error::No .json file found in release $TAG"
             exit 1
           fi
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern "$JSON_ASSET" --output mobile-latest.json --clobber
+          if ! jq empty mobile-latest.json; then
+            echo "::error::$JSON_ASSET in $TAG is not valid JSON"
+            exit 1
+          fi
+          cat mobile-latest.json
+
+      - name: Mark release as Latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.pick.outputs.tag }}
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --latest
 
       - name: Commit and push
+        env:
+          TAG: ${{ steps.pick.outputs.tag }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
@@ -73,5 +83,5 @@ jobs:
             echo "No changes"
             exit 0
           fi
-          git commit -m "Update mobile-latest.json to $(jq -r .version mobile-latest.json)"
+          git commit -m "Update mobile-latest.json from $TAG"
           git push
